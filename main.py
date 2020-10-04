@@ -79,12 +79,14 @@ def main():
 
     for number_of_bags in range(0, 3):
         print("NUMBER OF BAGS: ", number_of_bags)
+        print("-------------------------------------")
         visited = {key: False for key, value in visited.items()}
         for index in range(len(flights)):
             if number_of_bags <= flights[index].bags_allowed:
                 result = findTrip(index, flights, Trip([], number_of_bags, 0, 0), [], visited, number_of_bags)
                 for t in result:
                     print('Flights Numbers: {} Total Price: {}$ Total Bag Price: {}$'.format(t.flights, t.price, t.bag_price))
+        print("-------------------------------------")
 
 if __name__ == "__main__":
     main()
