@@ -89,7 +89,7 @@ def main():
         print("-------------------------------------")
 
 if __name__ == "__main__":
-    print(timeit.timeit(main, number=1000))
-    # start_time = time.perf_counter()
-    # main()
-    # print("--- %s seconds ---" % (time.perf_counter() - start_time))
+    # print(timeit.timeit(main, number=1000))
+    start_time = time.perf_counter()
+    main()
+    print("--- %s seconds ---" % (time.perf_counter() - start_time))
