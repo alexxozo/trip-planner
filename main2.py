@@ -1,4 +1,4 @@
-import sys, datetime, copy, timeit
+import sys, datetime, copy, time
 
 class Flight:
     def __init__(self, source, destination, departure, arrival, flight_number, price, bags_allowed, bag_price):
@@ -26,9 +26,7 @@ def matching(first_flight, second_flight, needed_bags):
     else:
         return False
 
-def findTrip(last_index, flights, trip, result, visited, needed_bags):
-    last_flight = flights[last_index]
-
+def findTrip(last_flight, flights_dict, trip, result, visited, needed_bags):
     # only appends the flight_number, can be changed to include the flight object
     trip.flights.append(last_flight.flight_number)
     trip.price = trip.price + last_flight.price
@@ -36,10 +34,11 @@ def findTrip(last_index, flights, trip, result, visited, needed_bags):
     result.append(copy.deepcopy(trip))
     visited[last_flight.destination] = True
 
-    for index in range(last_index + 1, len(flights)):
-        current_flight = flights[index]
+    for index in range(0, len(flights_dict[last_flight.destination])):
+        current_flight = flights_dict[last_flight.destination][index]
         if matching(last_flight, current_flight, needed_bags) and not visited[current_flight.destination]:
-            findTrip(index, flights, trip, result, visited, needed_bags)
+            findTrip(current_flight, flights_dict, trip, result, visited, needed_bags)
+
             visited[current_flight.destination] = False
             trip.price = trip.price - current_flight.price
             del trip.flights[-1]
@@ -48,6 +47,7 @@ def findTrip(last_index, flights, trip, result, visited, needed_bags):
 def main():
     flights = []
     visited = {}
+    flights_dict = {}
 
     # CSV INPUT
     try:
@@ -55,7 +55,11 @@ def main():
             if 'Exit' == line.rstrip():
                 break
             line = line.split(',')
-            flights.append(Flight(line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7]))
+            flight = Flight(line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7])
+            flights.append(flight)
+            if not line[0] in flights_dict:
+                flights_dict[line[0]] = []
+            flights_dict[line[0]].append(flight)
             visited[line[0]] = False
             visited[line[1]] = False
     except:
@@ -71,7 +75,11 @@ def main():
     # ]
     # for line in input_array:
     #     line = line.split(',')
-    #     flights.append(Flight(line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7]))
+    #     flight = Flight(line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7])
+    #     flights.append(flight)
+    #     if not line[0] in flights_dict:
+    #         flights_dict[line[0]] = []
+    #     flights_dict[line[0]].append(flight)
     #     visited[line[0]] = False
     #     visited[line[1]] = False
 
@@ -83,13 +91,12 @@ def main():
         visited = {key: False for key, value in visited.items()}
         for index in range(len(flights)):
             if number_of_bags <= flights[index].bags_allowed:
-                result = findTrip(index, flights, Trip([], number_of_bags, 0, 0), [], visited, number_of_bags)
+                result = findTrip(flights[index], flights_dict, Trip([], number_of_bags, 0, 0), [], visited, number_of_bags)
                 for t in result:
                     print('Flights Numbers: {} Total Price: {}$ Total Bag Price: {}$'.format(t.flights, t.price, t.bag_price))
         print("-------------------------------------")
 
 if __name__ == "__main__":
-    print(timeit.timeit(main, number=1000))
-    # start_time = time.perf_counter()
-    # main()
-    # print("--- %s seconds ---" % (time.perf_counter() - start_time))
+    start_time = time.perf_counter()
+    main()
+    print("--- %s seconds ---" % (time.perf_counter() - start_time))
